@@ -1,0 +1,32 @@
+name: Release tags
+
+# Consumers pin `voyager-marketing/voyager-block-check@v1`.
+# Every push to main moves the floating `v1` tag to that commit.
+# `v1.0.0` is created once, on the first run, and never moved.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Move v1, create v1.0.0 once
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git rev-parse -q --verify "refs/tags/v1.0.0" >/dev/null; then
+            git tag -a v1.0.0 -m "Block Check v1.0.0"
+            git push origin v1.0.0
+          fi
+          git tag -f v1
+          git push -f origin v1
