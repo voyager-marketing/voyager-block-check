@@ -54,9 +54,13 @@ Collect the manifest from your site (`wesper collect --wp-path ./public --out si
 | `wesper-manifest` | | Path to a Wesper `site.context.json` to validate and use as the token source |
 | `working-directory` | `.` | Folder the globs are relative to |
 | `comment` | `true` | Post or update a PR summary comment |
-| `block-runner-version` | `^1.0.0` | npm range for block-runner |
-| `wesper-version` | `^0.5.0` | npm range for wesper |
+| `block-runner-version` | `1.0.0` | Exact block-runner version; bumped by reviewed PR |
+| `wesper-version` | `0.5.0` | Exact wesper version; bumped by reviewed PR |
 | `github-token` | `github.token` | Token used for the PR comment |
+
+### Why the versions are pinned
+
+The Action installs Block Runner and Wesper from npm at run time, where Dependabot can't see them. Exact pins mean a new release reaches your CI only after a reviewed PR here bumps the default, rather than on the day it is published.
 
 ## Outputs
 
@@ -65,7 +69,7 @@ Collect the manifest from your site (`wesper collect --wp-path ./public --out si
 ## Run it locally
 
 ```bash
-npm install block-runner wesper
+npm install block-runner@1.0.0 wesper@0.5.0
 node path/to/voyager-block-check/scripts/check.mjs --strict
 ```
 
