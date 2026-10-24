@@ -62,6 +62,8 @@ Collect the manifest from your site (`wesper collect --wp-path ./public --out si
 
 The Action installs Block Runner and Wesper from npm at run time, where Dependabot can't see them. Exact pins mean a new release reaches your CI only after a reviewed PR here bumps the default, rather than on the day it is published.
 
+Node is pinned too, to 24.22.1. Block Runner 1.0.0 refuses any Node below 22.23.4, and `setup-node` with `'22'` resolves to whatever 22.x the runner has cached (22.23.3 on ubuntu-latest in October 2026), so a loose pin fails before a single block is checked.
+
 ## Outputs
 
 `ok`, `blocks`, `invalid`, `warnings`.
