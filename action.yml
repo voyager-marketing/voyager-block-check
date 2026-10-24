@@ -1,0 +1,100 @@
+name: Block Check
+description: Validate WordPress block markup (patterns, templates, parts) with Block Runner, optionally against a Wesper site manifest, and report on the PR.
+author: Voyager Marketing
+branding:
+  icon: check-square
+  color: blue
+
+inputs:
+  paths:
+    description: Space-separated globs of files to check. PHP pattern files are supported.
+    default: patterns/**/*.php patterns/**/*.html templates/**/*.html parts/**/*.html
+  strict:
+    description: Fail on Block Runner strict warnings, not only invalid blocks.
+    default: 'true'
+  wesper-manifest:
+    description: Optional path to a Wesper site.context.json. It is schema-validated and used as Block Runner's token source.
+    default: ''
+  working-directory:
+    description: Directory the globs are relative to (e.g. a theme or plugin folder in a monorepo).
+    default: '.'
+  comment:
+    description: Post or update a summary comment on the pull request.
+    default: 'true'
+  block-runner-version:
+    description: npm version range for block-runner.
+    default: '^1.0.0'
+  wesper-version:
+    description: npm version range for wesper.
+    default: '^0.5.0'
+  github-token:
+    description: Token used to post the PR comment.
+    default: ${{ github.token }}
+
+outputs:
+  ok:
+    description: "'true' when every check passed."
+    value: ${{ steps.check.outputs.ok }}
+  blocks:
+    description: Number of blocks validated.
+    value: ${{ steps.check.outputs.blocks }}
+  invalid:
+    description: Number of invalid blocks.
+    value: ${{ steps.check.outputs.invalid }}
+  warnings:
+    description: Number of warnings.
+    value: ${{ steps.check.outputs.warnings }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install Block Runner and Wesper
+      shell: bash
+      run: |
+        mkdir -p "$RUNNER_TEMP/block-check-tools"
+        cd "$RUNNER_TEMP/block-check-tools"
+        npm init -y >/dev/null
+        npm install --no-audit --no-fund "block-runner@${{ inputs.block-runner-version }}" "wesper@${{ inputs.wesper-version }}"
+
+    - name: Validate block markup
+      id: check
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        BC_PATHS: ${{ inputs.paths }}
+        BC_STRICT: ${{ inputs.strict }}
+        BC_MANIFEST: ${{ inputs.wesper-manifest }}
+      run: |
+        args=(--bin "$RUNNER_TEMP/block-check-tools/node_modules/.bin" --paths "$BC_PATHS" --md "$RUNNER_TEMP/block-check.md")
+        [ "$BC_STRICT" = "true" ] && args+=(--strict)
+        [ -n "$BC_MANIFEST" ] && args+=(--manifest "$BC_MANIFEST")
+        set +e
+        node "${{ github.action_path }}/scripts/check.mjs" "${args[@]}"
+        echo "exit=$?" >> "$GITHUB_OUTPUT"
+
+    - name: Comment on pull request
+      if: always() && inputs.comment == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+      run: |
+        [ -f "$RUNNER_TEMP/block-check.md" ] || exit 0
+        body="<!-- block-check -->
+        $(cat "$RUNNER_TEMP/block-check.md")"
+        existing=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '.[] | select(.body | startswith("<!-- block-check -->")) | .id' | head -1)
+        if [ -n "$existing" ]; then
+          gh api -X PATCH "repos/$REPO/issues/comments/$existing" -f body="$body" >/dev/null
+        else
+          gh api "repos/$REPO/issues/$PR/comments" -f body="$body" >/dev/null
+        fi
+
+    - name: Fail if checks failed
+      shell: bash
+      run: |
+        [ "${{ steps.check.outputs.exit }}" = "0" ] || exit 1
