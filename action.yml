@@ -22,11 +22,11 @@ inputs:
     description: Post or update a summary comment on the pull request.
     default: 'true'
   block-runner-version:
-    description: npm version range for block-runner.
-    default: '^1.0.0'
+    description: Exact block-runner version. Bump by reviewed PR (supply-chain cooldown).
+    default: '1.0.0'
   wesper-version:
-    description: npm version range for wesper.
-    default: '^0.5.0'
+    description: Exact wesper version. Bump by reviewed PR (supply-chain cooldown).
+    default: '0.5.0'
   github-token:
     description: Token used to post the PR comment.
     default: ${{ github.token }}
