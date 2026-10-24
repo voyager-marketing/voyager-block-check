@@ -1,0 +1,39 @@
+name: Self-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  passes-on-valid-markup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        uses: ./
+        with:
+          working-directory: test/fixtures/good
+          paths: patterns/**/*.php templates/**/*.html
+      - name: Assert pass
+        run: test "${{ steps.check.outputs.ok }}" = "true"
+
+  fails-on-broken-markup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        uses: ./
+        continue-on-error: true
+        with:
+          working-directory: test/fixtures/bad
+          paths: patterns/**/*.php
+          comment: 'false'
+      - name: Assert failure was detected
+        run: |
+          test "${{ steps.check.outputs.ok }}" = "false"
+          test "${{ steps.check.outputs.invalid }}" = "1"
