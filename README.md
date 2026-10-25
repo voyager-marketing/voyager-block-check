@@ -1,5 +1,9 @@
 # Block Check
 
+[![Release](https://img.shields.io/github/v/release/voyager-marketing/voyager-block-check)](https://github.com/voyager-marketing/voyager-block-check/releases/latest)
+[![Block Check](https://github.com/voyager-marketing/voyager-block-check/actions/workflows/self-test.yml/badge.svg?branch=main)](https://github.com/voyager-marketing/voyager-block-check/actions/workflows/self-test.yml)
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue)](#license)
+
 A GitHub Action that validates WordPress block markup on every pull request, so broken patterns never reach a site and the "Attempt Block Recovery" prompt never reaches an editor.
 
 It runs [Block Runner](https://github.com/humanmade/block-runner) (Human Made) over your patterns, templates and template parts, using the same parser the block editor uses. If you give it a [Wesper](https://github.com/humanmade/wesper) `site.context.json`, it also checks that manifest and validates design tokens against the real site.

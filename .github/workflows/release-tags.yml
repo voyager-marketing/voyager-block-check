@@ -1,13 +1,17 @@
 name: Release tags
 
 # Consumers pin `voyager-marketing/voyager-block-check@v1`.
-# Every push to main moves the floating `v1` tag to that commit.
-# `v1.0.0` is created once, on the first run, and never moved.
+# `v1` moves only when a v1.x.y GitHub Release is published, never on a push to main.
+# `workflow_dispatch` re-points `v1` at an existing release tag (a retry, or a rollback).
 
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to point v1 at (for example v1.0.1)
+        required: true
 
 permissions:
   contents: write
@@ -18,15 +22,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: refs/tags/${{ github.event.release.tag_name || inputs.tag }}
 
-      - name: Move v1, create v1.0.0 once
+      - name: Move v1 to the release tag
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
+          if ! [[ "$RELEASE_TAG" =~ ^v1\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::$RELEASE_TAG is not a v1.x.y tag, v1 is unchanged."
+            exit 1
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if ! git rev-parse -q --verify "refs/tags/v1.0.0" >/dev/null; then
-            git tag -a v1.0.0 -m "Block Check v1.0.0"
-            git push origin v1.0.0
-          fi
-          git tag -f v1
+          git tag -f v1 HEAD
           git push -f origin v1
+          echo "v1 -> $RELEASE_TAG ($(git rev-parse --short HEAD))" >> "$GITHUB_STEP_SUMMARY"
