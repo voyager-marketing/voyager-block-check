@@ -1,0 +1,43 @@
+name: Bug report
+description: Block Check reports something wrong, misses something, or breaks a run.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Security problems go through private reporting instead (see SECURITY.md).
+        Please leave out anything private: client names, URLs you can't share and credentials.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected the check to report, and what it reported.
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Your workflow step
+      description: The `uses:` step with its inputs.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: markup
+    attributes:
+      label: Markup that shows it
+      description: The smallest pattern, template or part that reproduces it.
+      render: html
+  - type: textarea
+    id: output
+    attributes:
+      label: Run output
+      description: The relevant lines from the action's log or its pull request comment.
+      render: text
+  - type: input
+    id: ref
+    attributes:
+      label: Block Check ref
+      placeholder: "@v1, or a commit"
+    validations:
+      required: true
