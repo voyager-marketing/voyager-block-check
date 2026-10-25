@@ -1,2 +1,4 @@
 node_modules/
 block-check.md
+.claude/worktrees/
+.claude/session-summary.md
