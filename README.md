@@ -79,6 +79,10 @@ node path/to/voyager-block-check/scripts/check.mjs --strict
 
 - Collect a fresh Wesper manifest in CI from a WordPress Playground or wp-env site, then fail on binding and registry gaps (`wesper collect --strict`).
 
+## Support
+
+Issues are answered within two business days. Support hours are Monday to Friday, 9am to 5pm US Eastern time, outside US public holidays. Questions go to [Discussions](https://github.com/voyager-marketing/voyager-block-check/discussions), bugs and feature requests to [issues](https://github.com/voyager-marketing/voyager-block-check/issues/new/choose), and security problems to private reporting ([SECURITY.md](SECURITY.md)). How to contribute is in [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 GPL-2.0-or-later, matching Block Runner and Wesper.

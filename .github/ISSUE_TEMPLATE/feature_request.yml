@@ -1,0 +1,30 @@
+name: Feature request
+description: Suggest something Block Check should check or report.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Block Check stays a small composite action with pinned tools. Read CONTRIBUTING.md first.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What does broken markup get past today, or what do you have to check by hand? Give a concrete example.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you'd like
+      description: The check or report, and the input that would turn it on.
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This contains no client names or client content.
+          required: true
+        - label: I'd like to work on this myself.
