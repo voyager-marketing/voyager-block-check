@@ -31,6 +31,8 @@ npm install block-runner@1.0.0 wesper@0.5.0
 node scripts/check.mjs --strict
 ```
 
+`.claude/settings.json` is the tracked permission allowlist for mission runs in this repo. Put your own connector grants in `.claude/settings.local.json` (gitignored) or in your user-level settings.
+
 ## Send a change
 
 1. Fork, branch from `main`, and keep the change to one thing.
